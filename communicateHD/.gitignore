@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# 本地上传的文件不入库，仅保留 loads 下的空目录占位
+uploads/loads/doc/*
+!uploads/loads/doc/.gitkeep
+uploads/loads/pic/*
+!uploads/loads/pic/.gitkeep

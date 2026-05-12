@@ -59,9 +59,16 @@ public class MaterialController {
         }
 
         try {
-            File docDir = new File(uploadPath, UploadConstants.REL_LOADS_DOC);
-            if (!docDir.exists()) {
-                docDir.mkdirs();
+            File root = new File(uploadPath).getAbsoluteFile();
+            if (!root.exists() && !root.mkdirs()) {
+                return Result.error("无法创建上传根目录：" + root.getAbsolutePath());
+            }
+            File docDir = new File(root, UploadConstants.REL_LOADS_DOC);
+            if (!docDir.exists() && !docDir.mkdirs()) {
+                return Result.error("无法创建资料目录：" + docDir.getAbsolutePath());
+            }
+            if (!docDir.isDirectory()) {
+                return Result.error("资料目录不可用：" + docDir.getAbsolutePath());
             }
 
             // 生成唯一文件名
@@ -73,7 +80,7 @@ public class MaterialController {
             String newFilename = UUID.randomUUID().toString() + extension;
 
             // 保存文件（资料含 PDF 等 → loads/doc）
-            File destFile = new File(docDir, newFilename);
+            File destFile = new File(docDir, newFilename).getAbsoluteFile();
             file.transferTo(destFile);
 
             // 保存到数据库
@@ -113,7 +120,7 @@ public class MaterialController {
             return;
         }
 
-        File file = new File(uploadPath, filePath.replace("/uploads/", ""));
+        File file = new File(new File(uploadPath).getAbsoluteFile(), filePath.replace("/uploads/", ""));
         if (!file.exists() || !file.isFile()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;

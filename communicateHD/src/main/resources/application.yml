@@ -16,6 +16,14 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
 
+# 上传根目录：相对路径 ./uploads 表示「进程当前工作目录下的 uploads」。
+# IDEA 默认以 communicateHD 模块为工作目录时，即本仓库 communicateHD/uploads/（已含 loads/doc、loads/pic 空目录）。
+# 必须可写；若目录不存在，首次上传时也会尝试创建 loads 子目录。
+# 落盘：{path}/loads/pic/ 图片；{path}/loads/doc/ 资料（含 PDF）。对外 URL：/uploads/loads/pic|doc/文件名
+# 迁移旧资料前，请先将 path 指到「旧文件实际所在的 uploads 根目录」，执行一次迁移后再按需改 path。
+# 部署到其它环境可改为绝对路径，例如：D:/UGit/studentbishe/communicateHD/uploads
 file:
   upload:
-    path: E:/bishe/communicateHD/uploads
+    path: ./uploads
+    # 设为 true 启动应用一次：把旧版 material「/uploads/文件名」迁入 loads/doc 并更新 file_path；完成后务必改回 false。
+    migrate-legacy-materials: false
