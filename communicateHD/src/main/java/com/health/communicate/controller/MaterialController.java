@@ -1,6 +1,7 @@
 package com.health.communicate.controller;
 
 import com.health.communicate.common.Result;
+import com.health.communicate.common.UploadConstants;
 import com.health.communicate.entity.Material;
 import com.health.communicate.mapper.MaterialMapper;
 import com.health.communicate.service.MaterialService;
@@ -58,10 +59,9 @@ public class MaterialController {
         }
 
         try {
-            // 创建上传目录
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            File docDir = new File(uploadPath, UploadConstants.REL_LOADS_DOC);
+            if (!docDir.exists()) {
+                docDir.mkdirs();
             }
 
             // 生成唯一文件名
@@ -72,8 +72,8 @@ public class MaterialController {
             }
             String newFilename = UUID.randomUUID().toString() + extension;
 
-            // 保存文件
-            File destFile = new File(uploadDir, newFilename);
+            // 保存文件（资料含 PDF 等 → loads/doc）
+            File destFile = new File(docDir, newFilename);
             file.transferTo(destFile);
 
             // 保存到数据库
@@ -81,7 +81,7 @@ public class MaterialController {
             material.setTitle(title);
             material.setCategory(category);
             material.setUserId(userId);
-            material.setFilePath("/uploads/" + newFilename);
+            material.setFilePath(UploadConstants.urlDoc(newFilename));
             material.setCreateTime(LocalDateTime.now());
             material.setDownloadCount(0);
 

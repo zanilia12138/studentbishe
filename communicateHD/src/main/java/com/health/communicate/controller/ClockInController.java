@@ -1,6 +1,7 @@
 package com.health.communicate.controller;
 
 import com.health.communicate.common.Result;
+import com.health.communicate.common.UploadConstants;
 import com.health.communicate.entity.ClockIn;
 import com.health.communicate.mapper.ClockInMapper;
 import com.health.communicate.service.ClockInService;
@@ -64,20 +65,16 @@ public class ClockInController {
         }
 
         try {
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
-            File clockDir = new File(uploadDir, "clock");
-            if (!clockDir.exists()) {
-                clockDir.mkdirs();
+            File picDir = new File(uploadPath, UploadConstants.REL_LOADS_PIC);
+            if (!picDir.exists()) {
+                picDir.mkdirs();
             }
 
             String newFilename = UUID.randomUUID().toString() + extension;
-            File destFile = new File(clockDir, newFilename);
+            File destFile = new File(picDir, newFilename);
             file.transferTo(destFile);
 
-            String url = "/uploads/clock/" + newFilename;
+            String url = UploadConstants.urlPic(newFilename);
             return Result.success(url);
         } catch (IOException e) {
             return Result.error("图片上传失败：" + e.getMessage());

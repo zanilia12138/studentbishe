@@ -1,6 +1,7 @@
 package com.health.communicate.controller;
 
 import com.health.communicate.common.Result;
+import com.health.communicate.common.UploadConstants;
 import com.health.communicate.entity.Post;
 import com.health.communicate.mapper.PostMapper;
 import com.health.communicate.service.PostService;
@@ -72,18 +73,14 @@ public class PostController {
             return Result.error("仅支持 jpg、jpeg、png、gif、webp 格式");
         }
         try {
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
-            File postDir = new File(uploadDir, "post");
-            if (!postDir.exists()) {
-                postDir.mkdirs();
+            File picDir = new File(uploadPath, UploadConstants.REL_LOADS_PIC);
+            if (!picDir.exists()) {
+                picDir.mkdirs();
             }
             String newFilename = UUID.randomUUID().toString() + extension;
-            File destFile = new File(postDir, newFilename);
+            File destFile = new File(picDir, newFilename);
             file.transferTo(destFile);
-            return Result.success("/uploads/post/" + newFilename);
+            return Result.success(UploadConstants.urlPic(newFilename));
         } catch (IOException e) {
             return Result.error("图片上传失败：" + e.getMessage());
         }
