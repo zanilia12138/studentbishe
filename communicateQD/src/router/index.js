@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import UserHome from '../views/UserHome.vue'
-import AdminHome from '../views/AdminHome.vue'
+import AdminPostManage from '../views/AdminPostManage.vue'
+import AdminUserManage from '../views/AdminUserManage.vue'
+import AdminAnnounceManage from '../views/AdminAnnounceManage.vue'
 import InfoList from '../views/InfoList.vue'
 import PostList from '../views/PostList.vue'
 import PostDetail from '../views/PostDetail.vue'
@@ -13,7 +15,10 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
   { path: '/user-home', component: UserHome },
-  { path: '/admin-home', component: AdminHome },
+  { path: '/admin-home', redirect: '/admin/users' },
+  { path: '/admin/posts', component: AdminPostManage },
+  { path: '/admin/users', component: AdminUserManage },
+  { path: '/admin/announcements', component: AdminAnnounceManage },
   { path: '/post-detail/:id', 
     name: 'PostDetail', 
     component: PostDetail 
@@ -31,14 +36,37 @@ const router = createRouter({
   routes
 })
 
+const ADMIN_ROLE = '2'
+const studentOnlyPaths = ['/post-list', '/info-list', '/guide']
+
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  if (to.meta.requireAuth) {
-    const token = localStorage.getItem('token')
-    const role = localStorage.getItem('role')
+  const role = String(localStorage.getItem('role') ?? '')
+  const token = localStorage.getItem('token')
+
+  if (to.path.startsWith('/admin/')) {
     if (!token) {
       next('/login')
-    } else if (to.meta.role && to.meta.role !== role) {
+      return
+    }
+    if (role !== ADMIN_ROLE) {
+      next('/user-home')
+      return
+    }
+  }
+
+  if (role === ADMIN_ROLE) {
+    if (studentOnlyPaths.includes(to.path) || to.path.startsWith('/post-detail')) {
+      next('/admin/users')
+      return
+    }
+  }
+
+  if (to.meta.requireAuth) {
+    const roleMeta = localStorage.getItem('role')
+    if (!token) {
+      next('/login')
+    } else if (to.meta.role && to.meta.role !== roleMeta) {
       next('/login')
     } else {
       next()

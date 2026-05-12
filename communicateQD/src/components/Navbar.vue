@@ -16,17 +16,25 @@
             <el-icon><HomeFilled /></el-icon>
             <span>个人首页</span>
           </el-menu-item>
-          <el-menu-item index="/post-list">
+          <el-menu-item index="/post-list" v-if="role === '1'">
             <el-icon><Document /></el-icon>
             <span>社区帖子</span>
           </el-menu-item>
-          <el-menu-item index="/info-list">
+          <el-menu-item index="/info-list" v-if="role === '1'">
             <el-icon><Files /></el-icon>
             <span>学习资料</span>
           </el-menu-item>
-          <el-menu-item index="/admin-home" v-if="role === '2'">
-            <el-icon><Setting /></el-icon>
-            <span>管理后台</span>
+          <el-menu-item index="/admin/posts" v-if="role === '2'">
+            <el-icon><Document /></el-icon>
+            <span>帖子管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/users" v-if="role === '2'">
+            <el-icon><User /></el-icon>
+            <span>用户管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/announcements" v-if="role === '2'">
+            <el-icon><Bell /></el-icon>
+            <span>公告管理</span>
           </el-menu-item>
         </el-menu>
         <div class="nav-user">
@@ -54,7 +62,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { School, HomeFilled, Document, Files, Setting } from '@element-plus/icons-vue'
+import { School, HomeFilled, Document, Files, Bell, User } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()

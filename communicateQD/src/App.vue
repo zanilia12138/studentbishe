@@ -5,11 +5,15 @@
       <div class="nav-title">备考学生交流系统</div>
       <div class="nav-menu">
         <router-link v-if="role === '1'" to="/user-home" class="nav-item">个人首页</router-link>
-        <router-link to="/post-list" class="nav-item">社区帖子</router-link>
-        <router-link to="/info-list" class="nav-item">学习资料</router-link>
-        <router-link to="/guide" class="nav-item">使用指南</router-link>
+        <router-link v-if="role === '1'" to="/post-list" class="nav-item">社区帖子</router-link>
+        <router-link v-if="role === '1'" to="/info-list" class="nav-item">学习资料</router-link>
+        <router-link v-if="role === '1'" to="/guide" class="nav-item">使用指南</router-link>
         <router-link to="/announcement" class="nav-item">公告</router-link>
-        <router-link v-if="role === '2'" to="/admin-home" class="nav-item">管理后台</router-link>
+        <template v-if="role === '2'">
+          <router-link to="/admin/posts" class="nav-item">帖子管理</router-link>
+          <router-link to="/admin/users" class="nav-item">用户管理</router-link>
+          <router-link to="/admin/announcements" class="nav-item">公告管理</router-link>
+        </template>
         
         <!-- 优化后的用户下拉框 -->
         <el-dropdown trigger="hover" class="user-dropdown">

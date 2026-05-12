@@ -63,7 +63,7 @@ const handleLogin = async () => {
     ElMessage.success('登录成功')
     
     if (res.data.role === 2) {
-      router.push('/admin-home')
+      router.push('/admin/users')
     } else {
       router.push('/user-home')
     }

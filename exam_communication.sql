@@ -143,6 +143,7 @@ CREATE TABLE `post`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '帖子ID',
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '帖子标题',
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '帖子内容',
+  `image_url` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '帖子配图相对路径',
   `user_id` int(11) NOT NULL COMMENT '发布人ID',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -152,25 +153,25 @@ CREATE TABLE `post`  (
 -- ----------------------------
 -- Records of post
 -- ----------------------------
-INSERT INTO `post` VALUES (1, '学习经验分享', '分享一下我的学习方法，大家一起进步！', 5, '2026-03-25 18:02:06');
-INSERT INTO `post` VALUES (2, '考研资料求购', '有没有26届考研的同学，求数学资料~', 2, '2026-03-25 18:02:06');
-INSERT INTO `post` VALUES (3, '四六级备考交流', '大家四六级准备得怎么样了，一起交流下', 3, '2026-03-25 18:02:06');
-INSERT INTO `post` VALUES (4, '课程作业互助', '谁会做Java课程设计呀，求指导！', 2, '2026-03-25 18:02:06');
-INSERT INTO `post` VALUES (5, '我好饿...', '好想吃金汤酸菜鱼...', 4, '2026-03-25 22:35:02');
-INSERT INTO `post` VALUES (6, '?', '?', 2, '2026-03-27 11:04:12');
-INSERT INTO `post` VALUES (7, '!', '!', 2, '2026-03-27 11:04:33');
-INSERT INTO `post` VALUES (8, '一次性彻底解决', '一次性彻底解决', 2, '2026-03-27 11:32:05');
-INSERT INTO `post` VALUES (9, '一次性彻底解决', '一次性彻底解决', 2, '2026-03-27 11:32:38');
-INSERT INTO `post` VALUES (10, '一次性彻底解决', '一次性彻底解决', 1, '2026-03-27 11:33:06');
-INSERT INTO `post` VALUES (11, '一次性彻底解决', '一次性彻底解决', 2, '2026-03-27 11:34:25');
-INSERT INTO `post` VALUES (12, '一次性彻底解决', '一次性彻底解决', 1, '2026-03-27 11:34:25');
-INSERT INTO `post` VALUES (13, '一次性彻底解决', '一次性彻底解决', 2, '2026-03-27 11:34:30');
-INSERT INTO `post` VALUES (14, '一次性彻底解决', '一次性彻底解决', 1, '2026-03-27 11:34:51');
-INSERT INTO `post` VALUES (15, 'localStorage', 'localStorage', 2, '2026-03-27 11:40:32');
-INSERT INTO `post` VALUES (16, 'postForm', 'postForm', 2, '2026-03-27 11:43:19');
-INSERT INTO `post` VALUES (17, 'userId', 'userId', 5, '2026-03-27 12:13:38');
-INSERT INTO `post` VALUES (18, '1', '1', 4, '2026-03-27 13:01:08');
-INSERT INTO `post` VALUES (19, '2', '2', 8, '2026-03-27 17:53:16');
+INSERT INTO `post` VALUES (1, '学习经验分享', '分享一下我的学习方法，大家一起进步！', NULL, 5, '2026-03-25 18:02:06');
+INSERT INTO `post` VALUES (2, '考研资料求购', '有没有26届考研的同学，求数学资料~', NULL, 2, '2026-03-25 18:02:06');
+INSERT INTO `post` VALUES (3, '四六级备考交流', '大家四六级准备得怎么样了，一起交流下', NULL, 3, '2026-03-25 18:02:06');
+INSERT INTO `post` VALUES (4, '课程作业互助', '谁会做Java课程设计呀，求指导！', NULL, 2, '2026-03-25 18:02:06');
+INSERT INTO `post` VALUES (5, '我好饿...', '好想吃金汤酸菜鱼...', NULL, 4, '2026-03-25 22:35:02');
+INSERT INTO `post` VALUES (6, '?', '?', NULL, 2, '2026-03-27 11:04:12');
+INSERT INTO `post` VALUES (7, '!', '!', NULL, 2, '2026-03-27 11:04:33');
+INSERT INTO `post` VALUES (8, '一次性彻底解决', '一次性彻底解决', NULL, 2, '2026-03-27 11:32:05');
+INSERT INTO `post` VALUES (9, '一次性彻底解决', '一次性彻底解决', NULL, 2, '2026-03-27 11:32:38');
+INSERT INTO `post` VALUES (10, '一次性彻底解决', '一次性彻底解决', NULL, 1, '2026-03-27 11:33:06');
+INSERT INTO `post` VALUES (11, '一次性彻底解决', '一次性彻底解决', NULL, 2, '2026-03-27 11:34:25');
+INSERT INTO `post` VALUES (12, '一次性彻底解决', '一次性彻底解决', NULL, 1, '2026-03-27 11:34:25');
+INSERT INTO `post` VALUES (13, '一次性彻底解决', '一次性彻底解决', NULL, 2, '2026-03-27 11:34:30');
+INSERT INTO `post` VALUES (14, '一次性彻底解决', '一次性彻底解决', NULL, 1, '2026-03-27 11:34:51');
+INSERT INTO `post` VALUES (15, 'localStorage', 'localStorage', NULL, 2, '2026-03-27 11:40:32');
+INSERT INTO `post` VALUES (16, 'postForm', 'postForm', NULL, 2, '2026-03-27 11:43:19');
+INSERT INTO `post` VALUES (17, 'userId', 'userId', NULL, 5, '2026-03-27 12:13:38');
+INSERT INTO `post` VALUES (18, '1', '1', NULL, 4, '2026-03-27 13:01:08');
+INSERT INTO `post` VALUES (19, '2', '2', NULL, 8, '2026-03-27 17:53:16');
 
 -- ----------------------------
 -- Table structure for user
@@ -204,3 +205,4 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- 若数据库由旧版初始化、尚无配图列，可手动执行：
 -- ALTER TABLE `clock_in` ADD COLUMN `image_url` varchar(512) NULL DEFAULT NULL COMMENT '打卡配图相对路径' AFTER `content`;
+-- ALTER TABLE `post` ADD COLUMN `image_url` varchar(512) NULL DEFAULT NULL COMMENT '帖子配图相对路径' AFTER `content`;

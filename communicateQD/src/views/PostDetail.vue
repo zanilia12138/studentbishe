@@ -18,6 +18,14 @@
 
       <!-- 帖子内容 -->
       <div class="content-card">
+        <el-image
+          v-if="postImage"
+          :src="publicImageUrl(postImage)"
+          :preview-src-list="[publicImageUrl(postImage)]"
+          fit="contain"
+          class="post-image"
+          preview-teleported
+        />
         <p class="post-content">{{ post.content }}</p>
       </div>
 
@@ -65,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import request from '../utils/request'
@@ -78,6 +86,14 @@ const commentList = ref([])
 const newComment = ref('')
 const loading = ref(true)
 const submitting = ref(false)
+
+const postImage = computed(() => post.value?.imageUrl || post.value?.image_url || '')
+
+const publicImageUrl = (path) => {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+  return path.startsWith('/') ? path : `/${path}`
+}
 
 // 加载帖子详情
 const getPostDetail = async () => {
@@ -190,6 +206,13 @@ onMounted(() => {
   color: #555;
   line-height: 1.8;
   margin: 0;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 420px;
+  margin-bottom: 16px;
+  border-radius: 8px;
 }
 
 .comment-card {
