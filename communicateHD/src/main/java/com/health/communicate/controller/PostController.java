@@ -3,6 +3,7 @@ package com.health.communicate.controller;
 import com.health.communicate.common.Result;
 import com.health.communicate.common.UploadConstants;
 import com.health.communicate.entity.Post;
+import com.health.communicate.util.ImageUploadUtils;
 import com.health.communicate.mapper.PostMapper;
 import com.health.communicate.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -31,8 +30,6 @@ public class PostController {
 
     @Value("${file.upload.path:./uploads}")
     private String uploadPath;
-
-    private static final Set<String> ALLOWED_IMAGE_EXT = Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp");
 
     // 获取帖子详情
     @GetMapping("/detail/{id}")
@@ -64,25 +61,30 @@ public class PostController {
         if (file == null || file.isEmpty()) {
             return Result.error("请选择图片文件");
         }
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase(Locale.ROOT);
-        }
-        if (!ALLOWED_IMAGE_EXT.contains(extension)) {
-            return Result.error("仅支持 jpg、jpeg、png、gif、webp 格式");
+        String extension = ImageUploadUtils.resolveImageExtension(file);
+        if (extension == null) {
+            return Result.error("仅支持 jpg、jpeg、png、gif、webp 格式（若从相册选择仍失败，请换带后缀的图片或截图后再选）");
         }
         try {
-            File picDir = new File(uploadPath, UploadConstants.REL_LOADS_PIC);
-            if (!picDir.exists()) {
-                picDir.mkdirs();
+            File root = new File(uploadPath).getAbsoluteFile();
+            if (!root.exists() && !root.mkdirs()) {
+                return Result.error("无法创建上传根目录：" + root.getAbsolutePath() + "。请检查 application.yml 中 file.upload.path（磁盘是否存在、是否有写权限）。");
+            }
+            File picDir = new File(root, UploadConstants.REL_LOADS_PIC);
+            if (!picDir.exists() && !picDir.mkdirs()) {
+                return Result.error("无法创建图片目录：" + picDir.getAbsolutePath());
+            }
+            if (!picDir.isDirectory()) {
+                return Result.error("图片目录不可用：" + picDir.getAbsolutePath());
             }
             String newFilename = UUID.randomUUID().toString() + extension;
-            File destFile = new File(picDir, newFilename);
+            File destFile = new File(picDir, newFilename).getAbsoluteFile();
             file.transferTo(destFile);
             return Result.success(UploadConstants.urlPic(newFilename));
         } catch (IOException e) {
             return Result.error("图片上传失败：" + e.getMessage());
+        } catch (Exception e) {
+            return Result.error("图片上传异常：" + e.getMessage());
         }
     }
 
