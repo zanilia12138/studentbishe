@@ -26,6 +26,7 @@
 
 <script setup>
 // 原有代码保持不变，无需修改
+import axios from 'axios'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -68,7 +69,9 @@ const handleLogin = async () => {
       router.push('/user-home')
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.msg || '登录失败')
+    if (!axios.isAxiosError(err)) {
+      ElMessage.error(err.message || '登录失败')
+    }
   } finally {
     loading.value = false
   }

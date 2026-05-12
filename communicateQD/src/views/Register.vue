@@ -31,6 +31,7 @@
 </template>
 
 <script setup>
+import axios from 'axios'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -89,7 +90,9 @@ const handleRegister = async () => {
     // 注册成功后跳转回登录页
     router.push('/login')
   } catch (err) {
-    ElMessage.error(err.response?.data?.msg || '注册失败')
+    if (!axios.isAxiosError(err)) {
+      ElMessage.error(err.message || '注册失败')
+    }
   } finally {
     loading.value = false
   }
