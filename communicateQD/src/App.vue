@@ -12,7 +12,6 @@
         <template v-if="role === '2'">
           <router-link to="/admin/posts" class="nav-item">帖子管理</router-link>
           <router-link to="/admin/users" class="nav-item">用户管理</router-link>
-          <router-link to="/admin/announcements" class="nav-item">公告管理</router-link>
         </template>
         
         <!-- 优化后的用户下拉框 -->
