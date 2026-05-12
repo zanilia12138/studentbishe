@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import UserHome from '../views/UserHome.vue'
 import AdminPostManage from '../views/AdminPostManage.vue'
 import AdminUserManage from '../views/AdminUserManage.vue'
+import AdminAnnounceManage from '../views/AdminAnnounceManage.vue'
 import InfoList from '../views/InfoList.vue'
 import PostList from '../views/PostList.vue'
 import PostDetail from '../views/PostDetail.vue'
@@ -17,6 +18,7 @@ const routes = [
   { path: '/admin-home', redirect: '/admin/users' },
   { path: '/admin/posts', component: AdminPostManage },
   { path: '/admin/users', component: AdminUserManage },
+  { path: '/admin/announcements', component: AdminAnnounceManage },
   { path: '/post-detail/:id', 
     name: 'PostDetail', 
     component: PostDetail 
@@ -54,6 +56,10 @@ router.beforeEach((to, from, next) => {
   }
 
   if (role === ADMIN_ROLE) {
+    if (to.path === '/announcement') {
+      next('/admin/announcements')
+      return
+    }
     if (studentOnlyPaths.includes(to.path) || to.path.startsWith('/post-detail')) {
       next('/admin/users')
       return

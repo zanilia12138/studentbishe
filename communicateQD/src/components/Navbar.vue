@@ -32,6 +32,10 @@
             <el-icon><User /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/announcements" v-if="role === '2'">
+            <el-icon><Bell /></el-icon>
+            <span>公告管理</span>
+          </el-menu-item>
         </el-menu>
         <div class="nav-user">
           <el-dropdown v-if="token" @command="handleCommand">
@@ -58,7 +62,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { School, HomeFilled, Document, Files, User } from '@element-plus/icons-vue'
+import { School, HomeFilled, Document, Files, Bell, User } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
