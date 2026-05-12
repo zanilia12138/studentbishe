@@ -2,12 +2,12 @@ package com.health.communicate.controller;
 
 import com.health.communicate.common.Result;
 import com.health.communicate.common.UploadConstants;
+import com.health.communicate.config.FileUploadProperties;
 import com.health.communicate.entity.Post;
 import com.health.communicate.util.ImageUploadUtils;
 import com.health.communicate.mapper.PostMapper;
 import com.health.communicate.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,8 +28,8 @@ public class PostController {
     @Autowired
     private PostMapper postMapper;
 
-    @Value("${file.upload.path:./uploads}")
-    private String uploadPath;
+    @Autowired
+    private FileUploadProperties fileUploadProperties;
 
     // 获取帖子详情
     @GetMapping("/detail/{id}")
@@ -66,19 +66,15 @@ public class PostController {
             return Result.error("仅支持 jpg、jpeg、png、gif、webp 格式（若从相册选择仍失败，请换带后缀的图片或截图后再选）");
         }
         try {
-            File root = new File(uploadPath).getAbsoluteFile();
-            if (!root.exists() && !root.mkdirs()) {
-                return Result.error("无法创建上传根目录：" + root.getAbsolutePath() + "。请检查 application.yml 中 file.upload.path（磁盘是否存在、是否有写权限）。");
+            File picRoot = fileUploadProperties.picRoot();
+            if (!picRoot.exists() && !picRoot.mkdirs()) {
+                return Result.error("无法创建图片根目录：" + picRoot.getAbsolutePath() + "。请检查 file.upload.pic-path。");
             }
-            File picDir = new File(root, UploadConstants.REL_LOADS_PIC);
-            if (!picDir.exists() && !picDir.mkdirs()) {
-                return Result.error("无法创建图片目录：" + picDir.getAbsolutePath());
-            }
-            if (!picDir.isDirectory()) {
-                return Result.error("图片目录不可用：" + picDir.getAbsolutePath());
+            if (!picRoot.isDirectory()) {
+                return Result.error("图片根目录不可用：" + picRoot.getAbsolutePath());
             }
             String newFilename = UUID.randomUUID().toString() + extension;
-            File destFile = new File(picDir, newFilename).getAbsoluteFile();
+            File destFile = new File(picRoot, newFilename).getAbsoluteFile();
             file.transferTo(destFile);
             return Result.success(UploadConstants.urlPic(newFilename));
         } catch (IOException e) {

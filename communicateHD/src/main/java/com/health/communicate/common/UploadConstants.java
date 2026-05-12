@@ -1,8 +1,8 @@
 package com.health.communicate.common;
 
 /**
- * 上传目录：在 {@code file.upload.path} 下使用 loads/doc（资料含 PDF 等）、loads/pic（图片）。
- * 对外 URL 仍为 /uploads/...，与 {@link com.health.communicate.config.WebMvcConfig} 一致。
+ * 对外 URL 前缀（与 {@link WebMvcConfig} 中 ResourceHandler 一致）。
+ * 资料实际根目录见 {@code file.upload.doc-path}，图片见 {@code file.upload.pic-path}。
  */
 public final class UploadConstants {
 

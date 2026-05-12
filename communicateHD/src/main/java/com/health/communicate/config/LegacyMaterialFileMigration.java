@@ -5,7 +5,6 @@ import com.health.communicate.entity.Material;
 import com.health.communicate.service.MaterialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,8 +17,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 /**
- * 将旧版「资料」文件从上传根目录（/uploads/xxx）迁入 loads/doc，并更新 material.file_path。
- * 在 application.yml 中设置 {@code file.upload.migrate-legacy-materials: true} 后启动<strong>一次</strong>，完成后请改回 false。
+ * 将旧版 material「/uploads/文件名」迁入 {@link FileUploadProperties#getDocPath()} 根目录，并更新 file_path。
+ * 源文件在 {@link FileUploadProperties#getLegacyPath()} 下查找。
  */
 @Component
 @Order(100)
@@ -30,20 +29,19 @@ public class LegacyMaterialFileMigration implements ApplicationRunner {
     private static final String URL_PREFIX = "/uploads/";
 
     private final MaterialService materialService;
+    private final FileUploadProperties fileUploadProperties;
 
-    @Value("${file.upload.path:./uploads}")
-    private String uploadPath;
-
-    public LegacyMaterialFileMigration(MaterialService materialService) {
+    public LegacyMaterialFileMigration(MaterialService materialService, FileUploadProperties fileUploadProperties) {
         this.materialService = materialService;
+        this.fileUploadProperties = fileUploadProperties;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        File root = new File(uploadPath).getAbsoluteFile();
-        File docDir = new File(root, UploadConstants.REL_LOADS_DOC);
-        if (!docDir.exists() && !docDir.mkdirs()) {
-            log.error("无法创建资料目录，跳过迁移：{}", docDir.getAbsolutePath());
+        File docRoot = fileUploadProperties.docRoot();
+        File legacyRoot = fileUploadProperties.legacyRoot();
+        if (!docRoot.exists() && !docRoot.mkdirs()) {
+            log.error("无法创建资料根目录，跳过迁移：{}", docRoot.getAbsolutePath());
             return;
         }
 
@@ -79,8 +77,8 @@ public class LegacyMaterialFileMigration implements ApplicationRunner {
 
             String newUrl = UploadConstants.urlDoc(baseName);
 
-            File src = new File(root, rel.replace("/", File.separator));
-            File dest = new File(docDir, baseName);
+            File src = new File(legacyRoot, rel.replace("/", File.separator));
+            File dest = new File(docRoot, baseName);
 
             try {
                 if (dest.exists() && dest.isFile()) {
@@ -88,7 +86,7 @@ public class LegacyMaterialFileMigration implements ApplicationRunner {
                         m.setFilePath(newUrl);
                         materialService.updateById(m);
                         updatedOnly++;
-                        log.info("资料 id={} 文件已在 doc 目录，已更新路径: {}", m.getId(), newUrl);
+                        log.info("资料 id={} 文件已在 doc 根目录，已更新路径: {}", m.getId(), newUrl);
                     } else {
                         skipped++;
                     }

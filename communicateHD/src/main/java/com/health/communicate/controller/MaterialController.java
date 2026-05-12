@@ -2,12 +2,12 @@ package com.health.communicate.controller;
 
 import com.health.communicate.common.Result;
 import com.health.communicate.common.UploadConstants;
+import com.health.communicate.config.FileUploadProperties;
 import com.health.communicate.entity.Material;
 import com.health.communicate.mapper.MaterialMapper;
 import com.health.communicate.service.MaterialService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,10 +31,9 @@ public class MaterialController {
     @Autowired
     private MaterialMapper materialMapper;
 
-    @Value("${file.upload.path:./uploads}")
-    private String uploadPath;
+    @Autowired
+    private FileUploadProperties fileUploadProperties;
 
-    // 获取资料列表（按下载数排序）
     @GetMapping("/list")
     public Result<List<Material>> getList(@RequestParam(required = false) String keyword) {
         List<Material> list;
@@ -46,7 +45,6 @@ public class MaterialController {
         return Result.success(list);
     }
 
-    // 上传资料（真实文件上传）
     @PostMapping("/upload")
     public Result<Material> upload(
             @RequestParam("file") MultipartFile file,
@@ -59,19 +57,14 @@ public class MaterialController {
         }
 
         try {
-            File root = new File(uploadPath).getAbsoluteFile();
-            if (!root.exists() && !root.mkdirs()) {
-                return Result.error("无法创建上传根目录：" + root.getAbsolutePath());
+            File docRoot = fileUploadProperties.docRoot();
+            if (!docRoot.exists() && !docRoot.mkdirs()) {
+                return Result.error("无法创建资料根目录：" + docRoot.getAbsolutePath() + "。请检查 file.upload.doc-path。");
             }
-            File docDir = new File(root, UploadConstants.REL_LOADS_DOC);
-            if (!docDir.exists() && !docDir.mkdirs()) {
-                return Result.error("无法创建资料目录：" + docDir.getAbsolutePath());
-            }
-            if (!docDir.isDirectory()) {
-                return Result.error("资料目录不可用：" + docDir.getAbsolutePath());
+            if (!docRoot.isDirectory()) {
+                return Result.error("资料根目录不可用：" + docRoot.getAbsolutePath());
             }
 
-            // 生成唯一文件名
             String originalFilename = file.getOriginalFilename();
             String extension = "";
             if (originalFilename != null && originalFilename.contains(".")) {
@@ -79,11 +72,9 @@ public class MaterialController {
             }
             String newFilename = UUID.randomUUID().toString() + extension;
 
-            // 保存文件（资料含 PDF 等 → loads/doc）
-            File destFile = new File(docDir, newFilename).getAbsoluteFile();
+            File destFile = new File(docRoot, newFilename).getAbsoluteFile();
             file.transferTo(destFile);
 
-            // 保存到数据库
             Material material = new Material();
             material.setTitle(title);
             material.setCategory(category);
@@ -105,7 +96,6 @@ public class MaterialController {
         }
     }
 
-    // 下载文件
     @GetMapping("/download/{id}")
     public void download(@PathVariable Integer id, HttpServletResponse response) {
         Material material = materialService.getById(id);
@@ -120,17 +110,15 @@ public class MaterialController {
             return;
         }
 
-        File file = new File(new File(uploadPath).getAbsoluteFile(), filePath.replace("/uploads/", ""));
-        if (!file.exists() || !file.isFile()) {
+        File file = fileUploadProperties.resolveDiskFile(filePath.trim());
+        if (file == null || !file.exists() || !file.isFile()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        // 先原子性增加下载次数（即使后续流被中断，计数也已生效）
         try {
             materialMapper.incrementDownloadCount(id);
         } catch (Exception ignore) {
-            // 计数失败不影响下载本身
         }
 
         try (FileInputStream fis = new FileInputStream(file);
@@ -150,7 +138,6 @@ public class MaterialController {
             }
             os.flush();
         } catch (IOException e) {
-            // 客户端中断或其它IO错误，不尝试再写状态码
         }
     }
 }
